@@ -9,3 +9,9 @@ wheels/
 # Virtual environments
 .venv
 .env
+# Generated data
+data/extract/*
+data/transform/*
+
+# Generated graph
+data_agent_graph.png

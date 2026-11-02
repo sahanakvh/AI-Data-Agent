@@ -25,7 +25,7 @@ class ETLTools:
         output_folder = os.path.join(project_root, output_folder)      
 
         try:
-            response = requests.get(url)
+            response = requests.get(url, params={"limit": 100, "offset": 0})
             response.raise_for_status()
             data  = response.json()
 

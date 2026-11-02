@@ -69,16 +69,32 @@ def transform_load_tool(input_file_path:str,output_folder:str,output_format:str,
             Here's the context of the data you will be analyzing: {top_3_rows}\n
 
         """
-
-    response = llm.invoke(prompt).content 
+    response = llm.invoke(prompt).content
 
     # Optional Cleaning
-    pandas_code = response.strip().strip('```').strip().lstrip('python').strip()
+
+    if isinstance(response, list):
+
+        response = "".join(
+
+            block.get("text", "")
+
+            for block in response
+
+            if isinstance(block, dict) and block.get("type") == "text"
+
+        )
+
+    pandas_code = response.strip().strip("`").strip()
+    if pandas_code.startswith("python"):
+
+        pandas_code = pandas_code[len("python"):].strip()
 
     # Execute the Pandas code
+
     results = etl_tools.execute_code(pandas_code)
 
-    return f"The data is transformed and saved at {output_folder} in {output_format} format. \n\n Pandas Code Executed: \n {pandas_code} \n\n Execution Result: \n {results}"
+    return f"The data is transformed and saved at {output_folder} in {output_format} format.\n\nPandas Code Executed:\n{pandas_code}\n\nExecution Result:\n{results}"
 
 
 # Toolkit 
@@ -86,7 +102,6 @@ tools = [extract_load_tool, transform_load_tool]
 
 llm = pick_llm("claude")
 llm_bind = llm.bind_tools(tools)
-
 
 # ---------------------------------------- AGENT GRAPH ---------------------------------------- #
 
